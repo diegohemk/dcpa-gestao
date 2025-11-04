@@ -86,15 +86,15 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
         await updateGerencia(gerencia.id, formData)
         showToast({
           type: 'success',
-          title: 'Gerência atualizada!',
-          message: 'A gerência foi atualizada com sucesso.'
+          title: 'Setor atualizado!',
+          message: 'O setor foi atualizado com sucesso.'
         })
       } else {
         await createGerencia(formData)
         showToast({
           type: 'success',
-          title: 'Gerência cadastrada!',
-          message: 'A nova gerência foi cadastrada com sucesso.'
+          title: 'Setor cadastrado!',
+          message: 'O novo setor foi cadastrado com sucesso.'
         })
       }
       
@@ -114,13 +114,13 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
         showToast({
           type: 'error',
           title: 'Sigla já existe',
-          message: 'Já existe uma gerência com esta sigla. Por favor, escolha outra.'
+          message: 'Já existe um setor com esta sigla. Por favor, escolha outra.'
         })
       } else {
         showToast({
           type: 'error',
           title: 'Erro ao salvar',
-          message: 'Não foi possível salvar a gerência. Tente novamente.'
+          message: 'Não foi possível salvar o setor. Tente novamente.'
         })
       }
     } finally {
@@ -137,7 +137,7 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800">
-            {isEditing ? 'Editar Gerência' : 'Nova Gerência'}
+            {isEditing ? 'Editar Setor' : 'Novo Setor'}
           </h2>
           <button 
             onClick={onClose} 
@@ -185,7 +185,7 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Cor da Gerência *
+              Cor do Setor *
             </label>
             <div className="grid grid-cols-6 gap-3 mb-3">
               {coresDisponiveis.map((cor) => (
@@ -225,7 +225,7 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Escolha uma cor para identificar esta gerência no sistema
+              Escolha uma cor para identificar este setor no sistema
             </p>
           </div>
 
@@ -243,7 +243,7 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
               className="flex-1 px-6 py-3 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
-              {loading ? 'Salvando...' : (isEditing ? 'Atualizar Gerência' : 'Cadastrar Gerência')}
+              {loading ? 'Salvando...' : (isEditing ? 'Atualizar Setor' : 'Cadastrar Setor')}
             </button>
           </div>
         </form>

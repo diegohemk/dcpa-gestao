@@ -134,17 +134,6 @@ const Layout = ({ children }: LayoutProps) => {
                   ))}
                 </div>
               )}
-              <Link
-                to="/gerencias"
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${
-                  location.pathname === '/gerencias'
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Building2 size={14} />
-                <span>Gerenciar Gerências</span>
-              </Link>
             </div>
           ) : (
             <Link
@@ -163,10 +152,10 @@ const Layout = ({ children }: LayoutProps) => {
                 ? 'bg-primary-500 text-white' 
                 : 'text-gray-700 hover:bg-gray-100'
             }`}
-            title={!isSidebarHovered ? 'Gerenciar Gerências' : ''}
+            title={!isSidebarHovered ? 'Gerenciar Setores' : ''}
           >
             <Building2 size={16} />
-            {isSidebarHovered && <span className="font-medium text-sm">Gerenciar Gerências</span>}
+            {isSidebarHovered && <span className="font-medium text-sm">Gerenciar Setores</span>}
           </Link>
 
           <Link
@@ -273,7 +262,7 @@ const Layout = ({ children }: LayoutProps) => {
                 {location.pathname === '/servidores' && 'Gestão de Servidores'}
                 {location.pathname === '/cursos' && 'Gestão de Cursos'}
                 {location.pathname === '/desempenho' && 'Sistema de Desempenho'}
-                {location.pathname === '/gerencias' && 'Gestão de Gerências'}
+                {location.pathname === '/gerencias' && 'Gestão de Setores'}
                 {location.pathname.startsWith('/gerencia/') && 
                   gerencias.find(g => location.pathname.includes(g.id))?.sigla
                 }

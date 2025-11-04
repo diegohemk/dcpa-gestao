@@ -25,7 +25,7 @@ const Gerencias = () => {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando gerências...</p>
+          <p className="text-gray-600">Carregando setores...</p>
         </div>
       </div>
     )
@@ -46,18 +46,18 @@ const Gerencias = () => {
       showToast({
         type: 'error',
         title: 'Não é possível excluir',
-        message: `Esta gerência possui ${servidoresGerencia.length} servidor(es) vinculado(s). Remova os servidores antes de excluir a gerência.`
+        message: `Este setor possui ${servidoresGerencia.length} servidor(es) vinculado(s). Remova os servidores antes de excluir o setor.`
       })
       return
     }
 
-    if (window.confirm(`Tem certeza que deseja excluir a gerência "${gerencia?.sigla}"?`)) {
+    if (window.confirm(`Tem certeza que deseja excluir o setor "${gerencia?.sigla}"?`)) {
       try {
         await deleteGerencia(id)
         showToast({
           type: 'success',
-          title: 'Gerência excluída!',
-          message: 'A gerência foi removida com sucesso.'
+          title: 'Setor excluído!',
+          message: 'O setor foi removido com sucesso.'
         })
       } catch (error: any) {
         console.error('Erro ao excluir gerência:', error)
@@ -98,7 +98,7 @@ const Gerencias = () => {
       {/* Stats Header */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-primary-500">
-          <div className="text-sm text-gray-600 mb-1">Total de Gerências</div>
+          <div className="text-sm text-gray-600 mb-1">Total de Setores</div>
           <div className="text-3xl font-bold text-gray-800">{gerencias.length}</div>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-purple-500">
@@ -133,22 +133,22 @@ const Gerencias = () => {
             className="flex items-center justify-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-colors"
           >
             <Plus size={20} />
-            Nova Gerência
+            Novo Setor
           </button>
         </div>
       </div>
 
-      {/* Lista de Gerências */}
+      {/* Lista de Setores */}
       {filteredGerencias.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-12 text-center">
           <Building2 size={48} className="mx-auto text-gray-400 mb-4" />
           <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            {searchTerm ? 'Nenhuma gerência encontrada' : 'Nenhuma gerência cadastrada'}
+            {searchTerm ? 'Nenhum setor encontrado' : 'Nenhum setor cadastrado'}
           </h3>
           <p className="text-gray-500 mb-6">
             {searchTerm 
               ? 'Tente ajustar os termos de busca.' 
-              : 'Comece cadastrando uma nova gerência usando o botão acima.'}
+              : 'Comece cadastrando um novo setor usando o botão acima.'}
           </p>
           {!searchTerm && (
             <button
@@ -156,7 +156,7 @@ const Gerencias = () => {
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-colors"
             >
               <Plus size={20} />
-              Cadastrar Primeira Gerência
+              Cadastrar Primeiro Setor
             </button>
           )}
         </div>
