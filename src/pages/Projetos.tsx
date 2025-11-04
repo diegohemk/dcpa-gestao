@@ -1,21 +1,26 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, AlertCircle, Clock, Users as UsersIcon, Plus, Eye, Calendar, TrendingUp, Filter } from 'lucide-react'
+import { Search, AlertCircle, Clock, Users as UsersIcon, Plus, Eye, Calendar, TrendingUp, Filter, Edit, Trash2 } from 'lucide-react'
 import { useProjetos } from '../hooks/useProjetos'
 import { useServidores } from '../hooks/useServidores'
 import { useGerencias } from '../hooks/useGerencias'
+import { useToast } from '../hooks/useToast'
 import { getIndicadorColor, formatDate } from '../utils/helpers'
 import ModalNovoProjeto from '../components/ModalNovoProjeto'
+import ModalEditarProjeto from '../components/ModalEditarProjeto'
 import FavoriteButton from '../components/FavoriteButton'
 
 const Projetos = () => {
-  const { projetos, loading, reload, toggleFavorite } = useProjetos()
+  const { projetos, loading, reload, toggleFavorite, deleteProjeto } = useProjetos()
   const { servidores } = useServidores()
   const { gerencias } = useGerencias()
+  const { showToast } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
   const [indicadorFilter, setIndicadorFilter] = useState<string>('todos')
   const [gerenciaFilter, setGerenciaFilter] = useState<string>('todas')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [projetoSelecionado, setProjetoSelecionado] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
 
   if (loading) {
@@ -65,6 +70,33 @@ const Projetos = () => {
       vermelho: 'Atrasado'
     }
     return texts[indicador as keyof typeof texts] || 'Indefinido'
+  }
+
+  const handleEdit = (projetoId: string) => {
+    setProjetoSelecionado(projetoId)
+    setIsEditModalOpen(true)
+  }
+
+  const handleDelete = async (projetoId: string, projetoNome: string) => {
+    if (!window.confirm(`Tem certeza que deseja excluir o projeto "${projetoNome}"? Esta ação não pode ser desfeita.`)) {
+      return
+    }
+
+    try {
+      await deleteProjeto(projetoId)
+      showToast({
+        type: 'success',
+        title: 'Projeto excluído',
+        message: 'O projeto foi excluído com sucesso.'
+      })
+      reload()
+    } catch (error) {
+      showToast({
+        type: 'error',
+        title: 'Erro ao excluir projeto',
+        message: 'Tente novamente em alguns instantes.'
+      })
+    }
   }
 
   return (
@@ -276,6 +308,22 @@ const Projetos = () => {
                       <Eye size={14} className="mr-1" />
                       Ver
                     </Link>
+                    <button
+                      onClick={() => handleEdit(projeto.id)}
+                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                      title="Editar projeto"
+                    >
+                      <Edit size={14} className="mr-1" />
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleDelete(projeto.id, projeto.nome)}
+                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Excluir projeto"
+                    >
+                      <Trash2 size={14} className="mr-1" />
+                      Excluir
+                    </button>
                   </div>
                 </div>
               </div>
@@ -301,6 +349,23 @@ const Projetos = () => {
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => reload()}
       />
+
+      {/* Modal Editar Projeto */}
+      {projetoSelecionado && (
+        <ModalEditarProjeto
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false)
+            setProjetoSelecionado(null)
+          }}
+          onSuccess={() => {
+            reload()
+            setIsEditModalOpen(false)
+            setProjetoSelecionado(null)
+          }}
+          projeto={projetos.find(p => p.id === projetoSelecionado) || null}
+        />
+      )}
     </div>
   )
 }

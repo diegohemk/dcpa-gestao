@@ -12,14 +12,16 @@ import SubetapasManager from '../components/SubetapasManager'
 import WBSEditor from '../components/WBSEditor'
 import EVMDashboard from '../components/EVMDashboard'
 import GanttChart from '../components/GanttChart'
+import ModalEditarProjeto from '../components/ModalEditarProjeto'
 import { StatusBadge, CounterBadge } from '../components/Badge'
 
 const ProjetoDetail = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<'overview' | 'subetapas' | 'wbs' | 'evm' | 'gantt' | 'comentarios' | 'historico' | 'timeline'>('overview')
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   
-  const { projetos, loading } = useProjetos()
+  const { projetos, loading, deleteProjeto, reload } = useProjetos()
   const { servidores } = useServidores()
   const { gerencias } = useGerencias()
   const { showToast } = useToast()
@@ -80,6 +82,30 @@ const ProjetoDetail = () => {
     }
   }
 
+  const handleDelete = async () => {
+    if (!projeto) return
+    
+    if (!window.confirm(`Tem certeza que deseja excluir o projeto "${projeto.nome}"? Esta ação não pode ser desfeita.`)) {
+      return
+    }
+
+    try {
+      await deleteProjeto(projeto.id)
+      showToast({
+        type: 'success',
+        title: 'Projeto excluído',
+        message: 'O projeto foi excluído com sucesso.'
+      })
+      navigate('/projetos')
+    } catch (error) {
+      showToast({
+        type: 'error',
+        title: 'Erro ao excluir projeto',
+        message: 'Tente novamente em alguns instantes.'
+      })
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -102,10 +128,18 @@ const ProjetoDetail = () => {
         <div className="flex items-center space-x-3">
           <StatusBadge status={projeto.indicador} />
           <div className="flex space-x-2">
-            <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+            <button 
+              onClick={() => setIsEditModalOpen(true)}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              title="Editar projeto"
+            >
               <Edit size={16} />
             </button>
-            <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
+            <button 
+              onClick={handleDelete}
+              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+              title="Excluir projeto"
+            >
               <Trash2 size={16} />
             </button>
           </div>
@@ -367,6 +401,17 @@ const ProjetoDetail = () => {
           </div>
         )}
       </div>
+
+      {/* Modal Editar Projeto */}
+      <ModalEditarProjeto
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={() => {
+          reload()
+          setIsEditModalOpen(false)
+        }}
+        projeto={projeto}
+      />
     </div>
   )
 }
