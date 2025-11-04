@@ -82,11 +82,9 @@ const ProjetoDetail = () => {
     }
   }
 
-  const handleDelete = async (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
+  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
     
     if (!projeto) {
       console.error('Projeto não encontrado para exclusão')
@@ -117,11 +115,9 @@ const ProjetoDetail = () => {
     }
   }
 
-  const handleEdit = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
     
     if (!projeto) {
       console.error('Projeto não encontrado para edição')
@@ -157,18 +153,20 @@ const ProjetoDetail = () => {
             <button 
               type="button"
               onClick={handleEdit}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 cursor-pointer"
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-center"
               title="Editar projeto"
+              aria-label="Editar projeto"
             >
-              <Edit size={16} />
+              <Edit size={16} className="pointer-events-none" />
             </button>
             <button 
               type="button"
               onClick={handleDelete}
-              className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 cursor-pointer"
+              className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 cursor-pointer flex items-center justify-center"
               title="Excluir projeto"
+              aria-label="Excluir projeto"
             >
-              <Trash2 size={16} />
+              <Trash2 size={16} className="pointer-events-none" />
             </button>
           </div>
         </div>

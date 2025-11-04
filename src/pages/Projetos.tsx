@@ -309,20 +309,32 @@ const Projetos = () => {
                       Ver
                     </Link>
                     <button
-                      onClick={() => handleEdit(projeto.id)}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleEdit(projeto.id)
+                      }}
                       className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                       title="Editar projeto"
+                      aria-label="Editar projeto"
                     >
-                      <Edit size={14} className="mr-1" />
-                      Editar
+                      <Edit size={14} className="mr-1 pointer-events-none" />
+                      <span className="pointer-events-none">Editar</span>
                     </button>
                     <button
-                      onClick={() => handleDelete(projeto.id, projeto.nome)}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDelete(projeto.id, projeto.nome)
+                      }}
                       className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
                       title="Excluir projeto"
+                      aria-label="Excluir projeto"
                     >
-                      <Trash2 size={14} className="mr-1" />
-                      Excluir
+                      <Trash2 size={14} className="mr-1 pointer-events-none" />
+                      <span className="pointer-events-none">Excluir</span>
                     </button>
                   </div>
                 </div>
