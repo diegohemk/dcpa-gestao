@@ -50,6 +50,13 @@ const Layout = ({ children }: LayoutProps) => {
     }
   }, [])
 
+  // Abrir menu de Setores automaticamente quando estiver em /setores ou /gerencia/*
+  useEffect(() => {
+    if (location.pathname === '/setores' || location.pathname.startsWith('/gerencia/')) {
+      setIsGerenciasOpen(true)
+    }
+  }, [location.pathname])
+
   // Sidebar sempre colapsada, expande apenas no hover (sobreposição)
   const handleSidebarHover = () => {
     setIsSidebarHovered(true)
