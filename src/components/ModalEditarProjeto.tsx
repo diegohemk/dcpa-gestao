@@ -5,6 +5,7 @@ import { useServidores } from '../hooks/useServidores'
 import { useGerencias } from '../hooks/useGerencias'
 import { useToast } from '../hooks/useToast'
 import { Projeto } from '../types'
+import { calcularIndicadorProjeto } from '../utils/helpers'
 
 interface ModalEditarProjetoProps {
   isOpen: boolean
@@ -42,6 +43,26 @@ const ModalEditarProjeto = ({ isOpen, onClose, onSuccess, projeto }: ModalEditar
     dataConclusao: '',
     statusDetalhado: 'planejamento' as 'planejamento' | 'execucao' | 'monitoramento' | 'concluido' | 'suspenso' | 'cancelado'
   })
+  
+  // Recalcula o indicador sempre que os dados relevantes mudarem
+  useEffect(() => {
+    if (formData.prazo) {
+      const orcamento = formData.orcamento ? parseFloat(formData.orcamento) : undefined
+      const custoReal = formData.custoReal ? parseFloat(formData.custoReal) : undefined
+      
+      const indicadorCalculado = calcularIndicadorProjeto({
+        prazo: formData.prazo,
+        andamento: formData.andamento,
+        dataInicio: formData.dataInicio,
+        dataConclusao: formData.dataConclusao,
+        statusDetalhado: formData.statusDetalhado,
+        orcamento,
+        custoReal
+      })
+      
+      setFormData(prev => ({ ...prev, indicador: indicadorCalculado }))
+    }
+  }, [formData.prazo, formData.andamento, formData.dataInicio, formData.dataConclusao, formData.statusDetalhado, formData.orcamento, formData.custoReal])
 
   const [novaTag, setNovaTag] = useState('')
   const [novoRisco, setNovoRisco] = useState('')
@@ -94,10 +115,25 @@ const ModalEditarProjeto = ({ isOpen, onClose, onSuccess, projeto }: ModalEditar
     try {
       setLoading(true)
       
+      const orcamento = formData.orcamento ? parseFloat(formData.orcamento) : undefined
+      const custoReal = formData.custoReal ? parseFloat(formData.custoReal) : undefined
+      
+      // Calcula o indicador automaticamente
+      const indicadorCalculado = calcularIndicadorProjeto({
+        prazo: formData.prazo,
+        andamento: formData.andamento,
+        dataInicio: formData.dataInicio,
+        dataConclusao: formData.dataConclusao,
+        statusDetalhado: formData.statusDetalhado,
+        orcamento,
+        custoReal
+      })
+      
       const projetoData = {
         ...formData,
-        orcamento: formData.orcamento ? parseFloat(formData.orcamento) : undefined,
-        custoReal: formData.custoReal ? parseFloat(formData.custoReal) : undefined,
+        indicador: indicadorCalculado,
+        orcamento,
+        custoReal,
         updatedAt: new Date().toISOString()
       }
       
@@ -326,22 +362,20 @@ const ModalEditarProjeto = ({ isOpen, onClose, onSuccess, projeto }: ModalEditar
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Indicador
+                    Indicador (calculado automaticamente)
                   </label>
-                  <div className="flex space-x-4">
-                    {['verde', 'amarelo', 'vermelho'].map((cor) => (
-                      <label key={cor} className="flex items-center">
-                        <input
-                          type="radio"
-                          name="indicador"
-                          value={cor}
-                          checked={formData.indicador === cor}
-                          onChange={(e) => setFormData(prev => ({ ...prev, indicador: e.target.value as any }))}
-                          className="mr-2"
-                        />
-                        <span className="capitalize">{cor}</span>
-                      </label>
-                    ))}
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-4 h-4 rounded-full ${
+                      formData.indicador === 'verde' ? 'bg-green-500' :
+                      formData.indicador === 'amarelo' ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}></div>
+                    <span className="text-sm text-gray-600 capitalize">
+                      {formData.indicador === 'verde' ? 'No Prazo' :
+                       formData.indicador === 'amarelo' ? 'Atenção' : 'Atrasado'}
+                    </span>
+                    <span className="text-xs text-gray-400 ml-2">
+                      (baseado em prazo, andamento e custos)
+                    </span>
                   </div>
                 </div>
 
