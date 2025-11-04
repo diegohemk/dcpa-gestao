@@ -115,6 +115,17 @@ const Layout = ({ children }: LayoutProps) => {
               
               {isGerenciasOpen && (
                 <div className="ml-3 mt-1 space-y-1">
+                  <Link
+                    to="/setores"
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                      location.pathname === '/setores'
+                        ? 'bg-primary-50 text-primary-700'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Building2 size={14} />
+                    <span>Gerenciar Setores</span>
+                  </Link>
                   {gerencias.map((gerencia) => (
                     <Link
                       key={gerencia.id}
@@ -144,19 +155,6 @@ const Layout = ({ children }: LayoutProps) => {
               <GitBranch size={16} />
             </Link>
           )}
-
-          <Link
-            to="/setores"
-            className={`flex items-center ${isSidebarHovered ? 'gap-2' : 'justify-center'} px-3 py-2 rounded-lg mb-1 transition-colors ${
-              isActive('/setores') 
-                ? 'bg-primary-500 text-white' 
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-            title={!isSidebarHovered ? 'Gerenciar Setores' : ''}
-          >
-            <Building2 size={16} />
-            {isSidebarHovered && <span className="font-medium text-sm">Gerenciar Setores</span>}
-          </Link>
 
           <Link
             to="/organograma"
