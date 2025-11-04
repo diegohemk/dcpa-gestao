@@ -35,6 +35,15 @@ const CursoCard = ({ curso, onEdit, onDelete, onView }: CursoCardProps) => {
         return 'bg-purple-100 text-purple-800'
       case 'externo':
         return 'bg-indigo-100 text-indigo-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getModalidadeColor = (modalidade: string) => {
+    switch (modalidade) {
+      case 'hibrido':
+        return 'bg-blue-100 text-blue-800'
       case 'online':
         return 'bg-cyan-100 text-cyan-800'
       case 'presencial':
@@ -57,6 +66,9 @@ const CursoCard = ({ curso, onEdit, onDelete, onView }: CursoCardProps) => {
               </div>
               <div className={`px-2 py-1 rounded-full text-xs font-medium ${getTipoColor(curso.tipo)}`}>
                 {curso.tipo}
+              </div>
+              <div className={`px-2 py-1 rounded-full text-xs font-medium ${getModalidadeColor(curso.modalidade || 'hibrido')}`}>
+                {curso.modalidade === 'hibrido' ? 'Híbrido' : curso.modalidade === 'online' ? 'Online' : 'Presencial'}
               </div>
             </div>
             
@@ -140,19 +152,8 @@ const CursoCard = ({ curso, onEdit, onDelete, onView }: CursoCardProps) => {
       <div className="p-4 bg-gray-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {curso.instrutor && (
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
-                  <span className="text-primary-600 font-medium text-xs">
-                    {curso.instrutor.nome.charAt(0)}
-                  </span>
-                </div>
-                <span className="text-xs text-gray-600">{curso.instrutor.nome}</span>
-              </div>
-            )}
             {curso.gerencia && (
               <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-500">•</span>
                 <span 
                   className="text-xs px-2 py-1 rounded-full text-white"
                   style={{ backgroundColor: curso.gerencia.cor }}

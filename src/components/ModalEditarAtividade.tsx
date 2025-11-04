@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 import { useAtividades } from '../hooks/useAtividades'
 import { useServidores } from '../hooks/useServidores'
 import { useGerencias } from '../hooks/useGerencias'
@@ -22,10 +22,11 @@ const ModalEditarAtividade = ({ isOpen, onClose, onSuccess, atividade }: ModalEd
     titulo: '',
     descricao: '',
     frequencia: 'semanal' as 'diária' | 'semanal' | 'mensal',
-    responsavelId: '',
+    responsaveis: [] as string[],
     gerenciaId: '',
     status: 'pendente' as 'pendente' | 'em andamento' | 'concluída'
   })
+  const [novoResponsavel, setNovoResponsavel] = useState('')
 
   useEffect(() => {
     if (atividade && isOpen) {
@@ -33,10 +34,11 @@ const ModalEditarAtividade = ({ isOpen, onClose, onSuccess, atividade }: ModalEd
         titulo: atividade.titulo,
         descricao: atividade.descricao,
         frequencia: atividade.frequencia,
-        responsavelId: atividade.responsavelId,
+        responsaveis: atividade.responsaveis || (atividade.responsavelId ? [atividade.responsavelId] : []),
         gerenciaId: atividade.gerenciaId,
         status: atividade.status
       })
+      setNovoResponsavel('')
     }
   }, [atividade, isOpen])
 
@@ -45,8 +47,8 @@ const ModalEditarAtividade = ({ isOpen, onClose, onSuccess, atividade }: ModalEd
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.titulo || !formData.descricao || !formData.responsavelId || !formData.gerenciaId) {
-      alert('Por favor, preencha todos os campos obrigatórios')
+    if (!formData.titulo || !formData.descricao || formData.responsaveis.length === 0 || !formData.gerenciaId) {
+      alert('Por favor, preencha todos os campos obrigatórios e selecione pelo menos um responsável')
       return
     }
 
@@ -54,6 +56,7 @@ const ModalEditarAtividade = ({ isOpen, onClose, onSuccess, atividade }: ModalEd
       setLoading(true)
       await updateAtividade(atividade.id, {
         ...formData,
+        responsaveis: formData.responsaveis,
         ultimaAtualizacao: new Date().toISOString().split('T')[0]
       })
       
@@ -74,8 +77,25 @@ const ModalEditarAtividade = ({ isOpen, onClose, onSuccess, atividade }: ModalEd
 
   // Filtrar servidores pela gerência selecionada
   const servidoresFiltrados = formData.gerenciaId
-    ? servidores.filter(s => s.gerenciaId === formData.gerenciaId)
+    ? servidores.filter(s => s.gerenciaId === formData.gerenciaId && !formData.responsaveis.includes(s.id))
     : []
+
+  const adicionarResponsavel = () => {
+    if (novoResponsavel && !formData.responsaveis.includes(novoResponsavel)) {
+      setFormData(prev => ({
+        ...prev,
+        responsaveis: [...prev.responsaveis, novoResponsavel]
+      }))
+      setNovoResponsavel('')
+    }
+  }
+
+  const removerResponsavel = (id: string) => {
+    setFormData(prev => ({
+      ...prev,
+      responsaveis: prev.responsaveis.filter(r => r !== id)
+    }))
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -133,7 +153,8 @@ const ModalEditarAtividade = ({ isOpen, onClose, onSuccess, atividade }: ModalEd
                 onChange={(e) => {
                   handleChange('gerenciaId', e.target.value)
                   if (e.target.value !== atividade.gerenciaId) {
-                    handleChange('responsavelId', '') // Limpar responsável ao mudar gerência
+                    setFormData(prev => ({ ...prev, responsaveis: [] })) // Limpar responsáveis ao mudar gerência
+                    setNovoResponsavel('')
                   }
                 }}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -163,43 +184,85 @@ const ModalEditarAtividade = ({ isOpen, onClose, onSuccess, atividade }: ModalEd
             </div>
           </div>
 
-          {/* Responsável e Status */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Responsável *
-              </label>
-              <select
-                value={formData.responsavelId}
-                onChange={(e) => handleChange('responsavelId', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                required
-                disabled={!formData.gerenciaId}
-              >
-                <option value="">
-                  {formData.gerenciaId ? 'Selecione...' : 'Selecione uma gerência primeiro'}
-                </option>
-                {servidoresFiltrados.map(s => (
-                  <option key={s.id} value={s.id}>{s.nome}</option>
-                ))}
-              </select>
+          {/* Responsáveis */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Responsáveis * (pelo menos um)
+            </label>
+            <div className="space-y-3">
+              {/* Lista de responsáveis selecionados */}
+              {formData.responsaveis.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {formData.responsaveis.map(responsavelId => {
+                    const servidor = servidores.find(s => s.id === responsavelId)
+                    return servidor ? (
+                      <span
+                        key={responsavelId}
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-primary-100 text-primary-800 rounded-lg text-sm"
+                      >
+                        {servidor.nome}
+                        <button
+                          type="button"
+                          onClick={() => removerResponsavel(responsavelId)}
+                          className="hover:text-primary-600"
+                        >
+                          <X size={14} />
+                        </button>
+                      </span>
+                    ) : null
+                  })}
+                </div>
+              )}
+              
+              {/* Adicionar novo responsável */}
+              {formData.gerenciaId && servidoresFiltrados.length > 0 && (
+                <div className="flex gap-2">
+                  <select
+                    value={novoResponsavel}
+                    onChange={(e) => setNovoResponsavel(e.target.value)}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="">Selecione um responsável...</option>
+                    {servidoresFiltrados.map(s => (
+                      <option key={s.id} value={s.id}>{s.nome}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={adicionarResponsavel}
+                    disabled={!novoResponsavel}
+                    className="px-4 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
+              )}
+              
+              {!formData.gerenciaId && (
+                <p className="text-sm text-gray-500">Selecione uma gerência primeiro para adicionar responsáveis</p>
+              )}
+              
+              {formData.gerenciaId && servidoresFiltrados.length === 0 && formData.responsaveis.length === 0 && (
+                <p className="text-sm text-gray-500">Todos os servidores desta gerência já foram adicionados</p>
+              )}
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Status *
-              </label>
-              <select
-                value={formData.status}
-                onChange={(e) => handleChange('status', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                required
-              >
-                <option value="pendente">Pendente</option>
-                <option value="em andamento">Em Andamento</option>
-                <option value="concluída">Concluída</option>
-              </select>
-            </div>
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Status *
+            </label>
+            <select
+              value={formData.status}
+              onChange={(e) => handleChange('status', e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              required
+            >
+              <option value="pendente">Pendente</option>
+              <option value="em andamento">Em Andamento</option>
+              <option value="concluída">Concluída</option>
+            </select>
           </div>
 
           {/* Buttons */}

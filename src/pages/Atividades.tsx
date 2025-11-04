@@ -138,7 +138,8 @@ const Atividades = () => {
         
         <div className="divide-y divide-gray-100">
           {filteredAtividades.map((atividade) => {
-            const responsavel = servidores.find(s => s.id === atividade.responsavelId)
+            const responsaveis = atividade.responsaveis?.map(id => servidores.find(s => s.id === id)).filter(Boolean) ||
+                                (atividade.responsavelId ? [servidores.find(s => s.id === atividade.responsavelId)].filter(Boolean) : [])
             const gerencia = gerencias.find(g => g.id === atividade.gerenciaId)
 
             return (
@@ -173,7 +174,11 @@ const Atividades = () => {
                         <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                           <div className="flex items-center gap-1">
                             <User size={14} />
-                            <span>{responsavel?.nome}</span>
+                            <span>
+                              {responsaveis.length > 0 
+                                ? responsaveis.map(s => s?.nome).filter(Boolean).join(', ')
+                                : 'Não definido'}
+                            </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar size={14} />

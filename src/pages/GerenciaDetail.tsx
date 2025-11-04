@@ -144,7 +144,9 @@ const GerenciaDetail = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-semibold text-gray-800">
-                    {atividades.filter(a => a.responsavelId === servidor.id).length}
+                    {atividades.filter(a => 
+                      a.responsaveis?.includes(servidor.id) || a.responsavelId === servidor.id
+                    ).length}
                   </div>
                   <div className="text-xs text-gray-500">Atividades</div>
                 </div>
@@ -170,7 +172,8 @@ const GerenciaDetail = () => {
             </thead>
             <tbody>
               {atividadesGerencia.map((atividade) => {
-                const responsavel = servidores.find(s => s.id === atividade.responsavelId)
+                const responsaveis = atividade.responsaveis?.map(id => servidores.find(s => s.id === id)).filter(Boolean) ||
+                                    (atividade.responsavelId ? [servidores.find(s => s.id === atividade.responsavelId)].filter(Boolean) : [])
                 return (
                   <tr key={atividade.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">
@@ -179,7 +182,11 @@ const GerenciaDetail = () => {
                         <p className="text-sm text-gray-600">{atividade.descricao}</p>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-700">{responsavel?.nome}</td>
+                    <td className="py-3 px-4 text-sm text-gray-700">
+                      {responsaveis.length > 0 
+                        ? responsaveis.map(s => s?.nome).filter(Boolean).join(', ')
+                        : 'Não definido'}
+                    </td>
                     <td className="py-3 px-4 text-sm text-gray-700 capitalize">{atividade.frequencia}</td>
                     <td className="py-3 px-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(atividade.status)}`}>
@@ -200,6 +207,7 @@ const GerenciaDetail = () => {
         <h3 className="text-lg font-semibold text-gray-800 mb-6">Projetos</h3>
         <div className="space-y-4">
           {projetosGerencia.map((projeto) => {
+            // Para projetos, ainda usa responsavelId único (não múltiplos responsáveis)
             const responsavel = servidores.find(s => s.id === projeto.responsavelId)
             
             return (

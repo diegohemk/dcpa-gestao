@@ -173,7 +173,9 @@ const Servidores = () => {
         <div className="space-y-3">
           {filteredServidores.map((servidor) => {
             const gerencia = gerencias.find(g => g.id === servidor.gerenciaId)
-            const atividadesServidor = atividades.filter(a => a.responsavelId === servidor.id)
+            const atividadesServidor = atividades.filter(a => 
+              a.responsaveis?.includes(servidor.id) || a.responsavelId === servidor.id
+            )
             const projetosServidor = projetos.filter(p => 
               p.responsavelId === servidor.id || p.equipe.includes(servidor.id)
             )
@@ -197,7 +199,9 @@ const Servidores = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredServidores.map((servidor) => {
             const gerencia = gerencias.find(g => g.id === servidor.gerenciaId)
-            const atividadesServidor = atividades.filter(a => a.responsavelId === servidor.id)
+            const atividadesServidor = atividades.filter(a => 
+              a.responsaveis?.includes(servidor.id) || a.responsavelId === servidor.id
+            )
             const projetosServidor = projetos.filter(p => 
               p.responsavelId === servidor.id || p.equipe.includes(servidor.id)
             )

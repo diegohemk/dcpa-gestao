@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { X, Plus, Calendar, Clock, Users, MapPin, BookOpen, Save, Loader } from 'lucide-react'
-import { Curso, Servidor, Gerencia } from '../types'
+import { Curso, Gerencia } from '../types'
 import { useToast } from '../hooks/useToast'
 
 interface ModalCursoProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'instrutor' | 'gerencia'>) => Promise<void>
+  onSave: (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'gerencia'>) => Promise<void>
   curso?: Curso | null
-  servidores: Servidor[]
+  servidores: any[] // Mantido para participantes, mas não precisa mais do tipo Servidor
   gerencias: Gerencia[]
   title: string
 }
@@ -29,11 +29,11 @@ const ModalCurso = ({
     dataInicio: curso?.dataInicio || '',
     dataFim: curso?.dataFim || '',
     cargaHoraria: curso?.cargaHoraria || '',
-    instrutorId: curso?.instrutorId || '',
     gerenciaId: curso?.gerenciaId || '',
     participantes: curso?.participantes || [],
     status: curso?.status || 'planejado' as const,
-    tipo: curso?.tipo || 'interno' as const,
+    tipo: (curso?.tipo === 'online' || curso?.tipo === 'presencial' ? 'interno' : curso?.tipo) || 'interno' as 'interno' | 'externo',
+    modalidade: curso?.modalidade || (curso?.tipo === 'online' ? 'online' : curso?.tipo === 'presencial' ? 'presencial' : 'hibrido') as 'hibrido' | 'online' | 'presencial',
     local: curso?.local || '',
     observacoes: curso?.observacoes || '',
     documentos: curso?.documentos || []
@@ -150,11 +150,24 @@ const ModalCurso = ({
               </label>
               <select
                 value={formData.tipo}
-                onChange={(e) => setFormData(prev => ({ ...prev, tipo: e.target.value as any }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, tipo: e.target.value as 'interno' | 'externo' }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="interno">Interno</option>
                 <option value="externo">Externo</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Modalidade
+              </label>
+              <select
+                value={formData.modalidade}
+                onChange={(e) => setFormData(prev => ({ ...prev, modalidade: e.target.value as 'hibrido' | 'online' | 'presencial' }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="hibrido">Híbrido</option>
                 <option value="online">Online</option>
                 <option value="presencial">Presencial</option>
               </select>
@@ -246,43 +259,23 @@ const ModalCurso = ({
             </div>
           </div>
 
-          {/* Instrutor e Gerência */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Instrutor
-              </label>
-              <select
-                value={formData.instrutorId}
-                onChange={(e) => setFormData(prev => ({ ...prev, instrutorId: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">Selecione um instrutor</option>
-                {servidores.map(servidor => (
-                  <option key={servidor.id} value={servidor.id}>
-                    {servidor.nome}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Gerência
-              </label>
-              <select
-                value={formData.gerenciaId}
-                onChange={(e) => setFormData(prev => ({ ...prev, gerenciaId: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">Selecione uma gerência</option>
-                {gerencias.map(gerencia => (
-                  <option key={gerencia.id} value={gerencia.id}>
-                    {gerencia.nome}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* Gerência */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Gerência
+            </label>
+            <select
+              value={formData.gerenciaId}
+              onChange={(e) => setFormData(prev => ({ ...prev, gerenciaId: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">Selecione uma gerência</option>
+              {gerencias.map(gerencia => (
+                <option key={gerencia.id} value={gerencia.id}>
+                  {gerencia.nome}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Local */}

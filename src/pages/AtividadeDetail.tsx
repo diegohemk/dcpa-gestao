@@ -23,7 +23,8 @@ const AtividadeDetail = () => {
   const { showToast } = useToast()
 
   const atividade = atividades.find(a => a.id === id)
-  const servidor = servidores.find(s => s.id === atividade?.responsavelId)
+  const responsaveis = atividade?.responsaveis?.map(id => servidores.find(s => s.id === id)).filter(Boolean) || 
+                       (atividade?.responsavelId ? [servidores.find(s => s.id === atividade.responsavelId)].filter(Boolean) : [])
   const gerencia = gerencias.find(g => g.id === atividade?.gerenciaId)
 
   if (loading) {
@@ -112,7 +113,7 @@ const AtividadeDetail = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{atividade.titulo}</h1>
             <p className="text-sm text-gray-600">
-              {gerencia?.nome} • Responsável: {servidor?.nome}
+              {gerencia?.nome} • Responsáveis: {responsaveis.map(s => s?.nome).filter(Boolean).join(', ') || 'Não definido'}
             </p>
           </div>
         </div>
@@ -191,8 +192,12 @@ const AtividadeDetail = () => {
                     <dd className="text-sm text-gray-900">{gerencia?.nome}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium text-gray-500">Responsável</dt>
-                    <dd className="text-sm text-gray-900">{servidor?.nome}</dd>
+                    <dt className="text-sm font-medium text-gray-500">Responsáveis</dt>
+                    <dd className="text-sm text-gray-900">
+                      {responsaveis.length > 0 
+                        ? responsaveis.map(s => s?.nome).filter(Boolean).join(', ')
+                        : 'Não definido'}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Última Atualização</dt>

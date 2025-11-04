@@ -6,7 +6,7 @@ interface UseCursosReturn {
   cursos: Curso[]
   loading: boolean
   error: string | null
-  createCurso: (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'instrutor' | 'gerencia'>) => Promise<void>
+  createCurso: (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'gerencia'>) => Promise<void>
   updateCurso: (id: string, updates: Partial<Curso>) => Promise<void>
   deleteCurso: (id: string) => Promise<void>
   reload: () => Promise<void>
@@ -35,7 +35,7 @@ export const useCursos = (): UseCursosReturn => {
     }
   }, [])
 
-  const createCurso = useCallback(async (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'instrutor' | 'gerencia'>) => {
+  const createCurso = useCallback(async (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'gerencia'>) => {
     try {
       setError(null)
       const novoCurso = await cursosService.create({
@@ -45,11 +45,11 @@ export const useCursos = (): UseCursosReturn => {
         dataInicio: curso.dataInicio,
         dataFim: curso.dataFim,
         cargaHoraria: curso.cargaHoraria,
-        instrutorId: curso.instrutorId,
         gerenciaId: curso.gerenciaId,
         participantes: curso.participantes,
         status: curso.status,
         tipo: curso.tipo,
+        modalidade: curso.modalidade,
         local: curso.local,
         observacoes: curso.observacoes,
         documentos: curso.documentos

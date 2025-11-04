@@ -57,7 +57,7 @@ const Cursos = () => {
     naoMinistrados: cursos.filter(c => !c.ministrado).length
   }
 
-  const handleCreateCurso = async (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'instrutor' | 'gerencia'>) => {
+  const handleCreateCurso = async (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'gerencia'>) => {
     try {
       await createCurso(curso)
       setIsModalOpen(false)
@@ -66,7 +66,7 @@ const Cursos = () => {
     }
   }
 
-  const handleUpdateCurso = async (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'instrutor' | 'gerencia'>) => {
+  const handleUpdateCurso = async (curso: Omit<Curso, 'id' | 'createdAt' | 'updatedAt' | 'gerencia'>) => {
     try {
       await updateCurso(editingCurso!.id, curso)
       setEditingCurso(null)

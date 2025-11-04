@@ -15,7 +15,8 @@ export const atividadesService = {
       titulo: item.titulo,
       descricao: item.descricao,
       frequencia: item.frequencia,
-      responsavelId: item.responsavel_id,
+      responsaveis: item.responsaveis || (item.responsavel_id ? [item.responsavel_id] : []),
+      responsavelId: item.responsavel_id, // Mantido para compatibilidade
       gerenciaId: item.gerencia_id,
       status: item.status,
       ultimaAtualizacao: item.ultima_atualizacao,
@@ -37,7 +38,8 @@ export const atividadesService = {
       titulo: item.titulo,
       descricao: item.descricao,
       frequencia: item.frequencia,
-      responsavelId: item.responsavel_id,
+      responsaveis: item.responsaveis || (item.responsavel_id ? [item.responsavel_id] : []),
+      responsavelId: item.responsavel_id, // Mantido para compatibilidade
       gerenciaId: item.gerencia_id,
       status: item.status,
       ultimaAtualizacao: item.ultima_atualizacao,
@@ -47,6 +49,10 @@ export const atividadesService = {
 
   async create(atividade: Omit<Atividade, 'id'>): Promise<Atividade> {
     const id = `a${Date.now()}`
+    // Usa responsaveis se disponível, senão usa responsavelId (compatibilidade)
+    const responsaveisArray = atividade.responsaveis || (atividade.responsavelId ? [atividade.responsavelId] : [])
+    const primeiroResponsavel = responsaveisArray.length > 0 ? responsaveisArray[0] : null
+    
     const { data, error } = await supabase
       .from('atividades')
       .insert({
@@ -54,7 +60,8 @@ export const atividadesService = {
         titulo: atividade.titulo,
         descricao: atividade.descricao,
         frequencia: atividade.frequencia,
-        responsavel_id: atividade.responsavelId,
+        responsaveis: responsaveisArray,
+        responsavel_id: primeiroResponsavel, // Mantido para compatibilidade
         gerencia_id: atividade.gerenciaId,
         status: atividade.status,
         ultima_atualizacao: atividade.ultimaAtualizacao,
@@ -70,6 +77,7 @@ export const atividadesService = {
       titulo: data.titulo,
       descricao: data.descricao,
       frequencia: data.frequencia,
+      responsaveis: data.responsaveis || (data.responsavel_id ? [data.responsavel_id] : []),
       responsavelId: data.responsavel_id,
       gerenciaId: data.gerencia_id,
       status: data.status,
@@ -83,11 +91,20 @@ export const atividadesService = {
     if (atividade.titulo) updateData.titulo = atividade.titulo
     if (atividade.descricao) updateData.descricao = atividade.descricao
     if (atividade.frequencia) updateData.frequencia = atividade.frequencia
-    if (atividade.responsavelId) updateData.responsavel_id = atividade.responsavelId
     if (atividade.gerenciaId) updateData.gerencia_id = atividade.gerenciaId
     if (atividade.status) updateData.status = atividade.status
     if (atividade.ultimaAtualizacao) updateData.ultima_atualizacao = atividade.ultimaAtualizacao
     if (atividade.documentos) updateData.documentos = atividade.documentos
+    
+    // Atualiza responsaveis se fornecido
+    if (atividade.responsaveis !== undefined) {
+      updateData.responsaveis = atividade.responsaveis
+      updateData.responsavel_id = atividade.responsaveis.length > 0 ? atividade.responsaveis[0] : null
+    } else if (atividade.responsavelId !== undefined) {
+      // Compatibilidade: se responsavelId for fornecido, converte para array
+      updateData.responsaveis = atividade.responsavelId ? [atividade.responsavelId] : []
+      updateData.responsavel_id = atividade.responsavelId
+    }
     
     const { data, error } = await supabase
       .from('atividades')
@@ -103,6 +120,7 @@ export const atividadesService = {
       titulo: data.titulo,
       descricao: data.descricao,
       frequencia: data.frequencia,
+      responsaveis: data.responsaveis || (data.responsavel_id ? [data.responsavel_id] : []),
       responsavelId: data.responsavel_id,
       gerenciaId: data.gerencia_id,
       status: data.status,

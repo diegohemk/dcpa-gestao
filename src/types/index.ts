@@ -203,7 +203,7 @@ export interface Atividade {
   titulo: string
   descricao: string
   frequencia: 'diária' | 'semanal' | 'mensal'
-  responsavelId: string
+  responsaveis: string[] // Array de IDs dos responsáveis
   gerenciaId: string
   status: 'pendente' | 'em andamento' | 'concluída'
   ultimaAtualizacao: string
@@ -218,6 +218,9 @@ export interface Atividade {
   eficiencia?: number // tempoEstimado/tempoReal
   consistencia?: number // variação na qualidade
   pontosDesempenho?: number // pontos calculados
+  
+  // Campo mantido para compatibilidade (deprecated - usar responsaveis)
+  responsavelId?: string
 }
 
 export interface Projeto {
@@ -298,18 +301,17 @@ export interface Curso {
   dataInicio?: string
   dataFim?: string
   cargaHoraria?: number
-  instrutorId?: string
   gerenciaId?: string
   participantes: string[]
   status: 'planejado' | 'em_andamento' | 'concluido' | 'cancelado'
-  tipo: 'interno' | 'externo' | 'online' | 'presencial'
+  tipo: 'interno' | 'externo'
+  modalidade: 'hibrido' | 'online' | 'presencial'
   local?: string
   observacoes?: string
   documentos: string[]
   createdAt: string
   updatedAt: string
   // Campos expandidos para exibição
-  instrutor?: Servidor
   gerencia?: Gerencia
 }
 

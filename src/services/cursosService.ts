@@ -8,13 +8,16 @@ export const cursosService = {
       .from('cursos')
       .select(`
         *,
-        instrutor:servidores!cursos_instrutor_id_fkey(*),
         gerencia:gerencias!cursos_gerencia_id_fkey(*)
       `)
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    return data || []
+    return (data || []).map(item => ({
+      ...item,
+      tipo: item.tipo === 'online' || item.tipo === 'presencial' ? 'interno' : item.tipo, // Migração de tipos antigos
+      modalidade: item.modalidade || (item.tipo === 'online' ? 'online' : item.tipo === 'presencial' ? 'presencial' : 'hibrido')
+    }))
   },
 
   // Buscar curso por ID
@@ -23,14 +26,17 @@ export const cursosService = {
       .from('cursos')
       .select(`
         *,
-        instrutor:servidores!cursos_instrutor_id_fkey(*),
         gerencia:gerencias!cursos_gerencia_id_fkey(*)
       `)
       .eq('id', id)
       .single()
 
     if (error) throw error
-    return data
+    return {
+      ...data,
+      tipo: data.tipo === 'online' || data.tipo === 'presencial' ? 'interno' : data.tipo,
+      modalidade: data.modalidade || (data.tipo === 'online' ? 'online' : data.tipo === 'presencial' ? 'presencial' : 'hibrido')
+    }
   },
 
   // Buscar cursos por status
@@ -39,14 +45,17 @@ export const cursosService = {
       .from('cursos')
       .select(`
         *,
-        instrutor:servidores!cursos_instrutor_id_fkey(*),
         gerencia:gerencias!cursos_gerencia_id_fkey(*)
       `)
       .eq('status', status)
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    return data || []
+    return (data || []).map(item => ({
+      ...item,
+      tipo: item.tipo === 'online' || item.tipo === 'presencial' ? 'interno' : item.tipo,
+      modalidade: item.modalidade || (item.tipo === 'online' ? 'online' : item.tipo === 'presencial' ? 'presencial' : 'hibrido')
+    }))
   },
 
   // Buscar cursos por tipo
@@ -55,14 +64,17 @@ export const cursosService = {
       .from('cursos')
       .select(`
         *,
-        instrutor:servidores!cursos_instrutor_id_fkey(*),
         gerencia:gerencias!cursos_gerencia_id_fkey(*)
       `)
       .eq('tipo', tipo)
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    return data || []
+    return (data || []).map(item => ({
+      ...item,
+      tipo: item.tipo === 'online' || item.tipo === 'presencial' ? 'interno' : item.tipo,
+      modalidade: item.modalidade || (item.tipo === 'online' ? 'online' : item.tipo === 'presencial' ? 'presencial' : 'hibrido')
+    }))
   },
 
   // Buscar cursos ministrados ou não
@@ -71,14 +83,17 @@ export const cursosService = {
       .from('cursos')
       .select(`
         *,
-        instrutor:servidores!cursos_instrutor_id_fkey(*),
         gerencia:gerencias!cursos_gerencia_id_fkey(*)
       `)
       .eq('ministrado', ministrado)
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    return data || []
+    return (data || []).map(item => ({
+      ...item,
+      tipo: item.tipo === 'online' || item.tipo === 'presencial' ? 'interno' : item.tipo,
+      modalidade: item.modalidade || (item.tipo === 'online' ? 'online' : item.tipo === 'presencial' ? 'presencial' : 'hibrido')
+    }))
   },
 
   // Criar novo curso
@@ -89,11 +104,11 @@ export const cursosService = {
     dataInicio?: string
     dataFim?: string
     cargaHoraria?: number
-    instrutorId?: string
     gerenciaId?: string
     participantes: string[]
     status: 'planejado' | 'em_andamento' | 'concluido' | 'cancelado'
-    tipo: 'interno' | 'externo' | 'online' | 'presencial'
+    tipo: 'interno' | 'externo'
+    modalidade: 'hibrido' | 'online' | 'presencial'
     local?: string
     observacoes?: string
     documentos?: string[]
@@ -107,24 +122,26 @@ export const cursosService = {
         data_inicio: curso.dataInicio,
         data_fim: curso.dataFim,
         carga_horaria: curso.cargaHoraria,
-        instrutor_id: curso.instrutorId,
         gerencia_id: curso.gerenciaId,
         participantes: curso.participantes,
         status: curso.status,
         tipo: curso.tipo,
+        modalidade: curso.modalidade,
         local: curso.local,
         observacoes: curso.observacoes,
         documentos: curso.documentos || []
       })
       .select(`
         *,
-        instrutor:servidores!cursos_instrutor_id_fkey(*),
         gerencia:gerencias!cursos_gerencia_id_fkey(*)
       `)
       .single()
 
     if (error) throw error
-    return data
+    return {
+      ...data,
+      modalidade: data.modalidade || 'hibrido'
+    }
   },
 
   // Atualizar curso
@@ -135,11 +152,11 @@ export const cursosService = {
     dataInicio: string
     dataFim: string
     cargaHoraria: number
-    instrutorId: string
     gerenciaId: string
     participantes: string[]
     status: 'planejado' | 'em_andamento' | 'concluido' | 'cancelado'
-    tipo: 'interno' | 'externo' | 'online' | 'presencial'
+    tipo: 'interno' | 'externo'
+    modalidade: 'hibrido' | 'online' | 'presencial'
     local: string
     observacoes: string
     documentos: string[]
@@ -152,11 +169,11 @@ export const cursosService = {
     if (updates.dataInicio !== undefined) updateData.data_inicio = updates.dataInicio
     if (updates.dataFim !== undefined) updateData.data_fim = updates.dataFim
     if (updates.cargaHoraria !== undefined) updateData.carga_horaria = updates.cargaHoraria
-    if (updates.instrutorId !== undefined) updateData.instrutor_id = updates.instrutorId
     if (updates.gerenciaId !== undefined) updateData.gerencia_id = updates.gerenciaId
     if (updates.participantes !== undefined) updateData.participantes = updates.participantes
     if (updates.status !== undefined) updateData.status = updates.status
     if (updates.tipo !== undefined) updateData.tipo = updates.tipo
+    if (updates.modalidade !== undefined) updateData.modalidade = updates.modalidade
     if (updates.local !== undefined) updateData.local = updates.local
     if (updates.observacoes !== undefined) updateData.observacoes = updates.observacoes
     if (updates.documentos !== undefined) updateData.documentos = updates.documentos
@@ -167,13 +184,15 @@ export const cursosService = {
       .eq('id', id)
       .select(`
         *,
-        instrutor:servidores!cursos_instrutor_id_fkey(*),
         gerencia:gerencias!cursos_gerencia_id_fkey(*)
       `)
       .single()
 
     if (error) throw error
-    return data
+    return {
+      ...data,
+      modalidade: data.modalidade || 'hibrido'
+    }
   },
 
   // Excluir curso
