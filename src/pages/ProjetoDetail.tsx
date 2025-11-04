@@ -82,8 +82,18 @@ const ProjetoDetail = () => {
     }
   }
 
-  const handleDelete = async () => {
-    if (!projeto) return
+  const handleDelete = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    if (!projeto) {
+      console.error('Projeto não encontrado para exclusão')
+      return
+    }
+    
+    console.log('handleDelete chamado para projeto:', projeto.id)
     
     if (!window.confirm(`Tem certeza que deseja excluir o projeto "${projeto.nome}"? Esta ação não pode ser desfeita.`)) {
       return
@@ -98,12 +108,28 @@ const ProjetoDetail = () => {
       })
       navigate('/projetos')
     } catch (error) {
+      console.error('Erro ao excluir projeto:', error)
       showToast({
         type: 'error',
         title: 'Erro ao excluir projeto',
         message: 'Tente novamente em alguns instantes.'
       })
     }
+  }
+
+  const handleEdit = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    if (!projeto) {
+      console.error('Projeto não encontrado para edição')
+      return
+    }
+    
+    console.log('handleEdit chamado para projeto:', projeto.id)
+    setIsEditModalOpen(true)
   }
 
   return (
@@ -129,15 +155,17 @@ const ProjetoDetail = () => {
           <StatusBadge status={projeto.indicador} />
           <div className="flex space-x-2">
             <button 
-              onClick={() => setIsEditModalOpen(true)}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              type="button"
+              onClick={handleEdit}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 cursor-pointer"
               title="Editar projeto"
             >
               <Edit size={16} />
             </button>
             <button 
+              type="button"
               onClick={handleDelete}
-              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+              className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 cursor-pointer"
               title="Excluir projeto"
             >
               <Trash2 size={16} />
