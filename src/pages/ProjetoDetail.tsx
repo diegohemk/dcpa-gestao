@@ -82,28 +82,24 @@ const ProjetoDetail = () => {
     }
   }
 
-  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    try {
-      e.preventDefault()
-      e.stopPropagation()
-      e.nativeEvent.stopImmediatePropagation()
-      
-      console.log('[DEBUG] handleDelete - evento capturado')
-      
-      if (!projeto) {
-        console.error('[DEBUG] Projeto não encontrado para exclusão')
-        return
-      }
-      
-      console.log('[DEBUG] handleDelete chamado para projeto:', projeto.id, projeto.nome)
-      
-      const confirmed = window.confirm(`Tem certeza que deseja excluir o projeto "${projeto.nome}"? Esta ação não pode ser desfeita.`)
-      
-      if (!confirmed) {
-        console.log('[DEBUG] Exclusão cancelada pelo usuário')
-        return
-      }
+  const handleDelete = async () => {
+    console.log('[DEBUG] handleDelete chamado - INÍCIO')
+    
+    if (!projeto) {
+      console.error('[DEBUG] Projeto não encontrado para exclusão')
+      return
+    }
+    
+    console.log('[DEBUG] Projeto encontrado:', projeto.id, projeto.nome)
+    
+    const confirmed = window.confirm(`Tem certeza que deseja excluir o projeto "${projeto.nome}"? Esta ação não pode ser desfeita.`)
+    
+    if (!confirmed) {
+      console.log('[DEBUG] Exclusão cancelada pelo usuário')
+      return
+    }
 
+    try {
       console.log('[DEBUG] Iniciando exclusão do projeto...')
       await deleteProjeto(projeto.id)
       
@@ -124,25 +120,18 @@ const ProjetoDetail = () => {
     }
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    try {
-      e.preventDefault()
-      e.stopPropagation()
-      e.nativeEvent.stopImmediatePropagation()
-      
-      console.log('[DEBUG] handleEdit - evento capturado')
-      
-      if (!projeto) {
-        console.error('[DEBUG] Projeto não encontrado para edição')
-        return
-      }
-      
-      console.log('[DEBUG] handleEdit chamado para projeto:', projeto.id, projeto.nome)
-      setIsEditModalOpen(true)
-      console.log('[DEBUG] Modal de edição aberto')
-    } catch (error) {
-      console.error('[DEBUG] Erro ao abrir modal de edição:', error)
+  const handleEdit = () => {
+    console.log('[DEBUG] handleEdit chamado - INÍCIO')
+    
+    if (!projeto) {
+      console.error('[DEBUG] Projeto não encontrado para edição')
+      return
     }
+    
+    console.log('[DEBUG] Projeto encontrado:', projeto.id, projeto.nome)
+    console.log('[DEBUG] Abrindo modal de edição...')
+    setIsEditModalOpen(true)
+    console.log('[DEBUG] Estado isEditModalOpen atualizado para:', true)
   }
 
   return (
@@ -166,28 +155,36 @@ const ProjetoDetail = () => {
         
         <div className="flex items-center space-x-3">
           <StatusBadge status={projeto.indicador} />
-          <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+          <div className="flex space-x-2">
             <button 
               type="button"
-              onClick={handleEdit}
-              onMouseDown={(e) => e.stopPropagation()}
-              onMouseUp={(e) => e.stopPropagation()}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-center relative z-10"
+              onClick={(e) => {
+                console.log('[DEBUG] Botão Editar clicado - evento recebido')
+                e.preventDefault()
+                e.stopPropagation()
+                handleEdit()
+              }}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-center relative z-50"
+              style={{ position: 'relative', zIndex: 50 }}
               title="Editar projeto"
               aria-label="Editar projeto"
             >
-              <Edit size={16} className="pointer-events-none" />
+              <Edit size={16} />
             </button>
             <button 
               type="button"
-              onClick={handleDelete}
-              onMouseDown={(e) => e.stopPropagation()}
-              onMouseUp={(e) => e.stopPropagation()}
-              className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 cursor-pointer flex items-center justify-center relative z-10"
+              onClick={(e) => {
+                console.log('[DEBUG] Botão Excluir clicado - evento recebido')
+                e.preventDefault()
+                e.stopPropagation()
+                handleDelete()
+              }}
+              className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 cursor-pointer flex items-center justify-center relative z-50"
+              style={{ position: 'relative', zIndex: 50 }}
               title="Excluir projeto"
               aria-label="Excluir projeto"
             >
-              <Trash2 size={16} className="pointer-events-none" />
+              <Trash2 size={16} />
             </button>
           </div>
         </div>
