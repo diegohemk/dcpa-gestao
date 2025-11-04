@@ -24,12 +24,30 @@ interface WBSEditorProps {
 }
 
 const WBSEditor = ({ projetoId }: WBSEditorProps) => {
-  const { wbs, loading, error, atualizarWBSItem, adicionarDependencia } = useWBS(projetoId)
+  const { wbs, loading, error, atualizarWBSItem, adicionarDependencia, criarWBS } = useWBS(projetoId)
   const { servidores } = useServidores()
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
   const [editingItem, setEditingItem] = useState<string | null>(null)
   const [showAddForm, setShowAddForm] = useState<string | null>(null)
   const [showDependencyForm, setShowDependencyForm] = useState<string | null>(null)
+
+  // Função auxiliar para adicionar item ao WBS recursivamente
+  const adicionarItemRecursivo = useCallback((items: WBSItem[], paiId: string, novoItem: WBSItem): WBSItem[] => {
+    return items.map(item => {
+      if (item.id === paiId) {
+        return {
+          ...item,
+          filhos: [...item.filhos, novoItem]
+        }
+      } else if (item.filhos.length > 0) {
+        return {
+          ...item,
+          filhos: adicionarItemRecursivo(item.filhos, paiId, novoItem)
+        }
+      }
+      return item
+    })
+  }, [])
 
   const toggleExpanded = (itemId: string) => {
     const newExpanded = new Set(expandedItems)
@@ -267,9 +285,14 @@ const WBSEditor = ({ projetoId }: WBSEditorProps) => {
               paiId={item.id}
               nivel={item.nivel + 1}
               codigoPai={item.codigo}
-              onSave={(novoItem) => {
-                // Implementar criação de novo item
-                setShowAddForm(null)
+              onSave={async (novoItem) => {
+                try {
+                  const wbsAtualizado = adicionarItemRecursivo(wbs, item.id, novoItem)
+                  await criarWBS(wbsAtualizado)
+                  setShowAddForm(null)
+                } catch (error) {
+                  console.error('Erro ao adicionar item:', error)
+                }
               }}
               onCancel={() => setShowAddForm(null)}
             />
@@ -331,8 +354,35 @@ const WBSEditor = ({ projetoId }: WBSEditorProps) => {
         {wbs.map(item => renderWBSItem(item))}
       </div>
 
+      {/* Formulário para Adicionar Item Raiz */}
+      {showAddForm === 'root' && (
+        <div className="p-6 bg-green-50 border border-green-200 rounded-lg">
+          <AddWBSItemForm
+            paiId="root"
+            nivel={0}
+            codigoPai=""
+            onSave={async (novoItem) => {
+              try {
+                // Gerar código para item raiz
+                const proximoCodigo = wbs.length + 1
+                const itemComCodigo = {
+                  ...novoItem,
+                  codigo: proximoCodigo.toString()
+                }
+                const wbsAtualizado = [...wbs, itemComCodigo]
+                await criarWBS(wbsAtualizado)
+                setShowAddForm(null)
+              } catch (error) {
+                console.error('Erro ao adicionar item raiz:', error)
+              }
+            }}
+            onCancel={() => setShowAddForm(null)}
+          />
+        </div>
+      )}
+
       {/* Estado Vazio */}
-      {wbs.length === 0 && (
+      {wbs.length === 0 && showAddForm !== 'root' && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <Plus size={48} className="mx-auto" />
@@ -597,13 +647,22 @@ const AddWBSItemForm = ({ paiId, nivel, codigoPai, onSave, onCancel }: AddWBSIte
   })
 
   const handleSave = () => {
+    // Gerar código baseado no pai
+    let codigo: string
+    if (paiId === 'root') {
+      codigo = '' // Será definido pelo componente pai
+    } else {
+      // Contar quantos filhos o pai já tem para gerar o próximo número
+      codigo = codigoPai ? `${codigoPai}.${nivel}` : `${nivel}`
+    }
+
     const novoItem: WBSItem = {
       id: `wbs_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      codigo: `${codigoPai}.${nivel}`,
+      codigo,
       nome: formData.nome,
       descricao: formData.descricao,
       nivel,
-      paiId,
+      paiId: paiId === 'root' ? undefined : paiId,
       filhos: [],
       responsavelId: 's1', // Default
       estimativaHoras: formData.estimativaHoras,

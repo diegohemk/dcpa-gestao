@@ -21,7 +21,7 @@ const ProjetoDetail = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'subetapas' | 'wbs' | 'evm' | 'gantt' | 'comentarios' | 'historico' | 'timeline'>('overview')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   
-  const { projetos, loading, deleteProjeto, reload } = useProjetos()
+  const { projetos, loading, deleteProjeto, updateProjeto, reload } = useProjetos()
   const { servidores } = useServidores()
   const { gerencias } = useGerencias()
   const { showToast } = useToast()
@@ -30,6 +30,27 @@ const ProjetoDetail = () => {
   const responsavel = servidores.find(s => s.id === projeto?.responsavelId)
   const gerencia = gerencias.find(g => g.id === projeto?.gerenciaId)
   const equipeServidores = servidores.filter(s => projeto?.equipe.includes(s.id))
+
+  // Usar o responsável do projeto como autorId padrão para comentários
+  // Se não houver responsável, usar o primeiro servidor da mesma gerência ou qualquer servidor
+  const autorId = projeto?.responsavelId || servidores.find(s => s.gerenciaId === projeto?.gerenciaId)?.id || servidores[0]?.id || 's1'
+
+  // Calcular status do prazo
+  const calcularStatusPrazo = () => {
+    if (!projeto) return { vencido: false, diasRestantes: 0 }
+    
+    const prazoDate = new Date(projeto.prazo)
+    const hoje = new Date()
+    hoje.setHours(0, 0, 0, 0)
+    prazoDate.setHours(0, 0, 0, 0)
+    
+    const diasRestantes = Math.ceil((prazoDate.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24))
+    const vencido = diasRestantes < 0 && projeto.statusDetalhado !== 'concluido'
+    
+    return { vencido, diasRestantes }
+  }
+
+  const statusPrazo = calcularStatusPrazo()
 
   if (loading) {
     return (
@@ -83,35 +104,27 @@ const ProjetoDetail = () => {
   }
 
   const handleDelete = async () => {
-    console.log('[DEBUG] handleDelete chamado - INÍCIO')
-    
     if (!projeto) {
-      console.error('[DEBUG] Projeto não encontrado para exclusão')
       return
     }
-    
-    console.log('[DEBUG] Projeto encontrado:', projeto.id, projeto.nome)
-    
+
     const confirmed = window.confirm(`Tem certeza que deseja excluir o projeto "${projeto.nome}"? Esta ação não pode ser desfeita.`)
-    
+
     if (!confirmed) {
-      console.log('[DEBUG] Exclusão cancelada pelo usuário')
       return
     }
 
     try {
-      console.log('[DEBUG] Iniciando exclusão do projeto...')
       await deleteProjeto(projeto.id)
-      
+
       showToast({
         type: 'success',
         title: 'Projeto excluído',
         message: 'O projeto foi excluído com sucesso.'
       })
-      
+
       navigate('/projetos')
     } catch (error) {
-      console.error('[DEBUG] Erro ao excluir projeto:', error)
       showToast({
         type: 'error',
         title: 'Erro ao excluir projeto',
@@ -121,21 +134,31 @@ const ProjetoDetail = () => {
   }
 
   const handleEdit = () => {
-    console.log('[DEBUG] handleEdit chamado - INÍCIO')
-    
     if (!projeto) {
-      console.error('[DEBUG] Projeto não encontrado para edição')
       return
     }
-    
-    console.log('[DEBUG] Projeto encontrado:', projeto.id, projeto.nome)
-    console.log('[DEBUG] Abrindo modal de edição...')
+
     setIsEditModalOpen(true)
-    console.log('[DEBUG] Estado isEditModalOpen atualizado para:', true)
   }
 
   return (
     <div className="space-y-6">
+      {/* Alerta de Prazo Vencido */}
+      {statusPrazo.vencido && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+          <div className="flex items-center">
+            <AlertTriangle className="w-5 h-5 text-red-500 mr-3" />
+            <div>
+              <h3 className="text-sm font-semibold text-red-800">Projeto com Prazo Vencido</h3>
+              <p className="text-sm text-red-700 mt-1">
+                Este projeto está vencido há {Math.abs(statusPrazo.diasRestantes)} dia(s). 
+                Prazo original: {new Date(projeto.prazo).toLocaleDateString('pt-BR')}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -156,10 +179,9 @@ const ProjetoDetail = () => {
         <div className="flex items-center space-x-3">
           <StatusBadge status={projeto.indicador} />
           <div className="flex space-x-2">
-            <button 
+            <button
               type="button"
               onClick={(e) => {
-                console.log('[DEBUG] Botão Editar clicado - evento recebido')
                 e.preventDefault()
                 e.stopPropagation()
                 handleEdit()
@@ -171,10 +193,9 @@ const ProjetoDetail = () => {
             >
               <Edit size={16} />
             </button>
-            <button 
+            <button
               type="button"
               onClick={(e) => {
-                console.log('[DEBUG] Botão Excluir clicado - evento recebido')
                 e.preventDefault()
                 e.stopPropagation()
                 handleDelete()
@@ -332,8 +353,25 @@ const ProjetoDetail = () => {
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Prazo</dt>
-                    <dd className="text-sm text-gray-900">
-                      {new Date(projeto.prazo).toLocaleDateString('pt-BR')}
+                    <dd className="text-sm">
+                      <span className={statusPrazo.vencido ? 'text-red-600 font-semibold' : 'text-gray-900'}>
+                        {new Date(projeto.prazo).toLocaleDateString('pt-BR')}
+                      </span>
+                      {statusPrazo.vencido && (
+                        <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                          Vencido há {Math.abs(statusPrazo.diasRestantes)} dia(s)
+                        </span>
+                      )}
+                      {!statusPrazo.vencido && statusPrazo.diasRestantes > 0 && statusPrazo.diasRestantes <= 7 && (
+                        <span className="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                          {statusPrazo.diasRestantes} dia(s) restante(s)
+                        </span>
+                      )}
+                      {!statusPrazo.vencido && statusPrazo.diasRestantes > 7 && (
+                        <span className="ml-2 text-xs text-gray-500">
+                          ({statusPrazo.diasRestantes} dias restantes)
+                        </span>
+                      )}
                     </dd>
                   </div>
                 </dl>
@@ -376,20 +414,99 @@ const ProjetoDetail = () => {
 
         {activeTab === 'subetapas' && (
           <div className="p-6">
+            {console.log('Renderizando SubetapasManager com subetapas:', projeto.subetapas)}
             <SubetapasManager
               subetapas={projeto.subetapas || []}
               servidores={servidores}
-              onAdd={(subetapa) => {
-                // Implementar adição de subetapa
-                console.log('Adicionar subetapa:', subetapa)
+              onAdd={async (subetapa) => {
+                try {
+                  console.log('Adicionando subetapa:', subetapa)
+                  
+                  const novaSubetapa = {
+                    ...subetapa,
+                    id: `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                  }
+                  
+                  console.log('Nova subetapa com ID:', novaSubetapa)
+                  console.log('Subetapas atuais:', projeto.subetapas)
+                  
+                  const subetapasAtualizadas = [...(projeto.subetapas || []), novaSubetapa]
+                  console.log('Subetapas após adicionar:', subetapasAtualizadas)
+                  
+                  const resultado = await updateProjeto(projeto.id, {
+                    subetapas: subetapasAtualizadas
+                  })
+                  
+                  console.log('Resultado do update:', resultado)
+                  
+                  showToast({
+                    type: 'success',
+                    title: 'Subetapa adicionada',
+                    message: 'A subetapa foi adicionada com sucesso.'
+                  })
+                  
+                  await reload()
+                  console.log('Reload concluído')
+                } catch (error) {
+                  console.error('Erro completo ao adicionar subetapa:', error)
+                  showToast({
+                    type: 'error',
+                    title: 'Erro ao adicionar subetapa',
+                    message: 'Tente novamente em alguns instantes.'
+                  })
+                }
               }}
-              onEdit={(id, subetapa) => {
-                // Implementar edição de subetapa
-                console.log('Editar subetapa:', id, subetapa)
+              onEdit={async (id, subetapaAtualizada) => {
+                try {
+                  const subetapasAtualizadas = (projeto.subetapas || []).map(sub =>
+                    sub.id === id ? { ...sub, ...subetapaAtualizada } : sub
+                  )
+                  
+                  await updateProjeto(projeto.id, {
+                    subetapas: subetapasAtualizadas
+                  })
+                  
+                  showToast({
+                    type: 'success',
+                    title: 'Subetapa atualizada',
+                    message: 'A subetapa foi atualizada com sucesso.'
+                  })
+                  
+                  reload()
+                } catch (error) {
+                  showToast({
+                    type: 'error',
+                    title: 'Erro ao atualizar subetapa',
+                    message: 'Tente novamente em alguns instantes.'
+                  })
+                }
               }}
-              onDelete={(id) => {
-                // Implementar exclusão de subetapa
-                console.log('Excluir subetapa:', id)
+              onDelete={async (id) => {
+                const confirmed = window.confirm('Tem certeza que deseja excluir esta subetapa?')
+                
+                if (!confirmed) return
+                
+                try {
+                  const subetapasAtualizadas = (projeto.subetapas || []).filter(sub => sub.id !== id)
+                  
+                  await updateProjeto(projeto.id, {
+                    subetapas: subetapasAtualizadas
+                  })
+                  
+                  showToast({
+                    type: 'success',
+                    title: 'Subetapa excluída',
+                    message: 'A subetapa foi excluída com sucesso.'
+                  })
+                  
+                  reload()
+                } catch (error) {
+                  showToast({
+                    type: 'error',
+                    title: 'Erro ao excluir subetapa',
+                    message: 'Tente novamente em alguns instantes.'
+                  })
+                }
               }}
             />
           </div>
@@ -420,7 +537,7 @@ const ProjetoDetail = () => {
           <div className="p-6">
             <ComentariosSection
               projetoId={projeto.id}
-              autorId="admin" // Em um sistema real, isso viria do contexto de autenticação
+              autorId={autorId}
               canEdit={true}
             />
           </div>
@@ -440,7 +557,7 @@ const ProjetoDetail = () => {
             <TimelineAtividades
               entidadeTipo="projeto"
               entidadeId={projeto.id}
-              autorId="admin" // Em um sistema real, isso viria do contexto de autenticação
+              autorId={autorId}
             />
           </div>
         )}

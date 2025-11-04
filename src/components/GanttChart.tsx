@@ -346,8 +346,25 @@ const GanttChart = ({ wbsItems, projetoId }: GanttChartProps) => {
         {tasks.length === 0 && (
           <div className="p-12 text-center">
             <Calendar size={48} className="mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-600 font-medium">Nenhuma tarefa com datas encontrada</p>
-            <p className="text-sm text-gray-500 mt-1">Adicione datas de início e fim às tarefas da WBS</p>
+            <p className="text-gray-600 font-medium mb-2">Nenhuma tarefa com datas encontrada</p>
+            <p className="text-sm text-gray-500 mb-4">
+              O cronograma é gerado automaticamente a partir dos itens da WBS que possuem datas.
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto text-left">
+              <p className="text-sm font-semibold text-blue-900 mb-2">📋 Como usar o Cronograma:</p>
+              <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                <li>Vá para a aba <strong>WBS</strong></li>
+                <li>Clique em <strong>"Adicionar Item"</strong></li>
+                <li>Preencha o formulário incluindo:
+                  <ul className="ml-6 mt-1 space-y-1 list-disc list-inside">
+                    <li><strong>Data Início</strong></li>
+                    <li><strong>Data Fim</strong></li>
+                  </ul>
+                </li>
+                <li>Salve o item</li>
+                <li>Volte para esta aba para ver o cronograma</li>
+              </ol>
+            </div>
           </div>
         )}
       </div>
