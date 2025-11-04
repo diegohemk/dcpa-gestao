@@ -39,12 +39,25 @@ function App() {
           } 
         />
         <Route
+          path="/"
+          element={
+            user ? (
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
           path="/*"
           element={
             <ProtectedRoute>
               <Layout>
                 <Routes>
-                  <Route path="/" element={<Dashboard />} />
                   <Route path="/gerencia/:id" element={<GerenciaDetail />} />
                   <Route path="/organograma" element={<Organograma />} />
                   <Route path="/atividades" element={<Atividades />} />
