@@ -155,7 +155,7 @@ const Layout = ({ children }: LayoutProps) => {
             title={!isSidebarHovered ? 'Gerenciar Setores' : ''}
           >
             <Building2 size={16} />
-            {isSidebarHovered && <span className="font-medium text-sm">Setores</span>}
+            {isSidebarHovered && <span className="font-medium text-sm">Gerenciar Setores</span>}
           </Link>
 
           <Link
