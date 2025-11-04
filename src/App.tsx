@@ -68,7 +68,7 @@ function App() {
                   <Route path="/servidores" element={<Servidores />} />
                   <Route path="/cursos" element={<Cursos />} />
                   <Route path="/desempenho" element={<Desempenho />} />
-                  <Route path="/gerencias" element={<Gerencias />} />
+                  <Route path="/setores" element={<Gerencias />} />
                   <Route path="/alterar-senha" element={<AlterarSenha />} />
                 </Routes>
               </Layout>

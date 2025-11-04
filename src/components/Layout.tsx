@@ -105,7 +105,7 @@ const Layout = ({ children }: LayoutProps) => {
               >
                 <div className="flex items-center gap-2">
                   <GitBranch size={16} />
-                  <span className="font-medium text-sm">Gerências</span>
+                  <span className="font-medium text-sm">Setores</span>
                 </div>
                 <ChevronDown 
                   size={14} 
@@ -139,23 +139,23 @@ const Layout = ({ children }: LayoutProps) => {
             <Link
               to="/gerencia/geaud"
               className="flex items-center justify-center px-3 py-2 rounded-lg mb-1 text-gray-700 hover:bg-gray-100 transition-colors"
-              title="Gerências"
+              title="Setores"
             >
               <GitBranch size={16} />
             </Link>
           )}
 
           <Link
-            to="/gerencias"
+            to="/setores"
             className={`flex items-center ${isSidebarHovered ? 'gap-2' : 'justify-center'} px-3 py-2 rounded-lg mb-1 transition-colors ${
-              isActive('/gerencias') 
+              isActive('/setores') 
                 ? 'bg-primary-500 text-white' 
                 : 'text-gray-700 hover:bg-gray-100'
             }`}
             title={!isSidebarHovered ? 'Gerenciar Setores' : ''}
           >
             <Building2 size={16} />
-            {isSidebarHovered && <span className="font-medium text-sm">Gerenciar Setores</span>}
+            {isSidebarHovered && <span className="font-medium text-sm">Setores</span>}
           </Link>
 
           <Link
@@ -262,7 +262,7 @@ const Layout = ({ children }: LayoutProps) => {
                 {location.pathname === '/servidores' && 'Gestão de Servidores'}
                 {location.pathname === '/cursos' && 'Gestão de Cursos'}
                 {location.pathname === '/desempenho' && 'Sistema de Desempenho'}
-                {location.pathname === '/gerencias' && 'Gestão de Setores'}
+                {location.pathname === '/setores' && 'Gestão de Setores'}
                 {location.pathname.startsWith('/gerencia/') && 
                   gerencias.find(g => location.pathname.includes(g.id))?.sigla
                 }

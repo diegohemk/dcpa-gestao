@@ -35,7 +35,7 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
     nome: '',
     sigla: '',
     cor: '#3B82F6',
-    listarNoOrganograma: true
+    listarNoOrganograma: true // true = listar no organograma
   })
 
   const isEditing = !!gerencia
@@ -46,7 +46,7 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
         nome: gerencia.nome,
         sigla: gerencia.sigla,
         cor: gerencia.cor,
-        listarNoOrganograma: gerencia.listarNoOrganograma !== false // Padrão true se não definido
+        listarNoOrganograma: gerencia.listarNoOrganograma !== false // Padrão true (listar) se não definido
       })
     } else {
       setFormData({
@@ -246,11 +246,11 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
               htmlFor="listarNoOrganograma"
               className="text-sm font-medium text-gray-700 cursor-pointer select-none"
             >
-              Não listar no organograma
+              Listar no organograma
             </label>
           </div>
           <p className="text-xs text-gray-500 -mt-2">
-            Quando marcado, este setor não aparecerá na página de organograma
+            Quando marcado, este setor aparecerá na página de organograma
           </p>
 
           <div className="flex gap-4 pt-4">
