@@ -73,24 +73,39 @@ const Projetos = () => {
   }
 
   const handleEdit = (projetoId: string) => {
-    setProjetoSelecionado(projetoId)
-    setIsEditModalOpen(true)
+    try {
+      console.log('[DEBUG] handleEdit chamado para projeto:', projetoId)
+      setProjetoSelecionado(projetoId)
+      setIsEditModalOpen(true)
+      console.log('[DEBUG] Modal de edição aberto')
+    } catch (error) {
+      console.error('[DEBUG] Erro ao abrir modal de edição:', error)
+    }
   }
 
   const handleDelete = async (projetoId: string, projetoNome: string) => {
-    if (!window.confirm(`Tem certeza que deseja excluir o projeto "${projetoNome}"? Esta ação não pode ser desfeita.`)) {
-      return
-    }
-
     try {
+      console.log('[DEBUG] handleDelete chamado para projeto:', projetoId, projetoNome)
+      
+      const confirmed = window.confirm(`Tem certeza que deseja excluir o projeto "${projetoNome}"? Esta ação não pode ser desfeita.`)
+      
+      if (!confirmed) {
+        console.log('[DEBUG] Exclusão cancelada pelo usuário')
+        return
+      }
+
+      console.log('[DEBUG] Iniciando exclusão do projeto...')
       await deleteProjeto(projetoId)
+      
       showToast({
         type: 'success',
         title: 'Projeto excluído',
         message: 'O projeto foi excluído com sucesso.'
       })
+      
       reload()
     } catch (error) {
+      console.error('[DEBUG] Erro ao excluir projeto:', error)
       showToast({
         type: 'error',
         title: 'Erro ao excluir projeto',
@@ -313,9 +328,12 @@ const Projetos = () => {
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
+                        e.nativeEvent.stopImmediatePropagation()
                         handleEdit(projeto.id)
                       }}
-                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onMouseUp={(e) => e.stopPropagation()}
+                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors relative z-10"
                       title="Editar projeto"
                       aria-label="Editar projeto"
                     >
@@ -327,9 +345,12 @@ const Projetos = () => {
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
+                        e.nativeEvent.stopImmediatePropagation()
                         handleDelete(projeto.id, projeto.nome)
                       }}
-                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onMouseUp={(e) => e.stopPropagation()}
+                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors relative z-10"
                       title="Excluir projeto"
                       aria-label="Excluir projeto"
                     >
