@@ -8,14 +8,16 @@ import { useToast } from '../hooks/useToast'
 import ComentariosSection from '../components/ComentariosSection'
 import HistoricoAlteracoes from '../components/HistoricoAlteracoes'
 import TimelineAtividades from '../components/TimelineAtividades'
+import ModalEditarAtividade from '../components/ModalEditarAtividade'
 import { StatusBadge, CounterBadge } from '../components/Badge'
 
 const AtividadeDetail = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<'overview' | 'comentarios' | 'historico' | 'timeline'>('overview')
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   
-  const { atividades, loading } = useAtividades()
+  const { atividades, loading, deleteAtividade, reload } = useAtividades()
   const { servidores } = useServidores()
   const { gerencias } = useGerencias()
   const { showToast } = useToast()
@@ -51,6 +53,44 @@ const AtividadeDetail = () => {
     )
   }
 
+  const handleEdit = () => {
+    setIsEditModalOpen(true)
+  }
+
+  const handleDelete = async () => {
+    if (!atividade) return
+    
+    if (!confirm('Tem certeza que deseja excluir esta atividade? Esta ação não pode ser desfeita.')) {
+      return
+    }
+
+    try {
+      await deleteAtividade(atividade.id)
+      showToast({
+        type: 'success',
+        title: 'Atividade excluída!',
+        message: 'A atividade foi removida com sucesso.'
+      })
+      navigate('/atividades')
+    } catch (error) {
+      console.error('Erro ao excluir atividade:', error)
+      showToast({
+        type: 'error',
+        title: 'Erro ao excluir atividade',
+        message: 'Tente novamente em alguns instantes.'
+      })
+    }
+  }
+
+  const handleEditSuccess = () => {
+    reload()
+    setIsEditModalOpen(false)
+  }
+
+  // Usar o responsável da atividade como autorId padrão para comentários
+  // Se não houver responsável, usar o primeiro servidor da mesma gerência ou qualquer servidor
+  const autorId = atividade?.responsavelId || servidores.find(s => s.gerenciaId === atividade?.gerenciaId)?.id || servidores[0]?.id || 's1'
+
   const tabs = [
     { id: 'overview', label: 'Visão Geral', icon: Clock },
     { id: 'comentarios', label: 'Comentários', icon: MessageCircle },
@@ -80,10 +120,18 @@ const AtividadeDetail = () => {
         <div className="flex items-center space-x-3">
           <StatusBadge status={atividade.status} />
           <div className="flex space-x-2">
-            <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+            <button 
+              onClick={handleEdit}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              title="Editar atividade"
+            >
               <Edit size={16} />
             </button>
-            <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
+            <button 
+              onClick={handleDelete}
+              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+              title="Excluir atividade"
+            >
               <Trash2 size={16} />
             </button>
           </div>
@@ -169,7 +217,7 @@ const AtividadeDetail = () => {
           <div className="p-6">
             <ComentariosSection
               atividadeId={atividade.id}
-              autorId="admin" // Em um sistema real, isso viria do contexto de autenticação
+              autorId={autorId}
             />
           </div>
         )}
@@ -188,11 +236,19 @@ const AtividadeDetail = () => {
             <TimelineAtividades
               entidadeTipo="atividade"
               entidadeId={atividade.id}
-              autorId="admin" // Em um sistema real, isso viria do contexto de autenticação
+              autorId={autorId}
             />
           </div>
         )}
       </div>
+
+      {/* Modal Editar Atividade */}
+      <ModalEditarAtividade
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={handleEditSuccess}
+        atividade={atividade}
+      />
     </div>
   )
 }

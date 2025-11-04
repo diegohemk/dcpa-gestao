@@ -32,6 +32,15 @@ const ComentariosSection = ({
     
     if (!novoComentario.trim()) return
 
+    if (!autorId) {
+      showToast({
+        type: 'error',
+        title: 'Erro ao adicionar comentário',
+        message: 'Não foi possível identificar o autor do comentário.'
+      })
+      return
+    }
+
     try {
       setIsSubmitting(true)
       await createComentario(novoComentario.trim(), autorId)
@@ -42,10 +51,11 @@ const ComentariosSection = ({
         message: 'Seu comentário foi publicado com sucesso.'
       })
     } catch (error) {
+      console.error('Erro ao criar comentário:', error)
       showToast({
         type: 'error',
         title: 'Erro ao adicionar comentário',
-        message: 'Tente novamente em alguns instantes.'
+        message: error instanceof Error ? error.message : 'Tente novamente em alguns instantes.'
       })
     } finally {
       setIsSubmitting(false)
