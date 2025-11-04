@@ -3,6 +3,7 @@ export interface Gerencia {
   nome: string
   sigla: string
   cor: string
+  listarNoOrganograma?: boolean // Por padrão true, se false não aparece no organograma
 }
 
 export interface Servidor {

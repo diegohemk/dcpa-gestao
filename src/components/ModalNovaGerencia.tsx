@@ -34,7 +34,8 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
   const [formData, setFormData] = useState({
     nome: '',
     sigla: '',
-    cor: '#3B82F6'
+    cor: '#3B82F6',
+    listarNoOrganograma: true
   })
 
   const isEditing = !!gerencia
@@ -44,13 +45,15 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
       setFormData({
         nome: gerencia.nome,
         sigla: gerencia.sigla,
-        cor: gerencia.cor
+        cor: gerencia.cor,
+        listarNoOrganograma: gerencia.listarNoOrganograma !== false // Padrão true se não definido
       })
     } else {
       setFormData({
         nome: '',
         sigla: '',
-        cor: '#3B82F6'
+        cor: '#3B82F6',
+        listarNoOrganograma: true
       })
     }
   }, [gerencia, isOpen])
@@ -104,7 +107,8 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
       setFormData({
         nome: '',
         sigla: '',
-        cor: '#3B82F6'
+        cor: '#3B82F6',
+        listarNoOrganograma: true
       })
     } catch (error: any) {
       console.error('Erro ao salvar gerência:', error)
@@ -228,6 +232,26 @@ const ModalNovaGerencia = ({ isOpen, onClose, onSuccess, gerencia }: ModalNovaGe
               Escolha uma cor para identificar este setor no sistema
             </p>
           </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <input
+              type="checkbox"
+              id="listarNoOrganograma"
+              checked={formData.listarNoOrganograma}
+              onChange={(e) => handleChange('listarNoOrganograma', e.target.checked)}
+              className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 cursor-pointer"
+              disabled={loading}
+            />
+            <label 
+              htmlFor="listarNoOrganograma"
+              className="text-sm font-medium text-gray-700 cursor-pointer select-none"
+            >
+              Não listar no organograma
+            </label>
+          </div>
+          <p className="text-xs text-gray-500 -mt-2">
+            Quando marcado, este setor não aparecerá na página de organograma
+          </p>
 
           <div className="flex gap-4 pt-4">
             <button

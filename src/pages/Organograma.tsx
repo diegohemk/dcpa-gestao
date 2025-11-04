@@ -21,6 +21,9 @@ const Organograma = () => {
     )
   }
 
+  // Filtrar apenas gerencias que devem aparecer no organograma
+  const gerenciasVisiveis = gerencias.filter(g => g.listarNoOrganograma !== false)
+
   const toggleGerencia = (id: string) => {
     if (expandedGerencias.includes(id)) {
       setExpandedGerencias(expandedGerencias.filter(gId => gId !== id))
@@ -30,7 +33,7 @@ const Organograma = () => {
   }
 
   const expandAll = () => {
-    setExpandedGerencias(gerencias.map(g => g.id))
+    setExpandedGerencias(gerenciasVisiveis.map(g => g.id))
   }
 
   const collapseAll = () => {
@@ -78,7 +81,7 @@ const Organograma = () => {
                   Diretoria de Controle, Passivos e Qualidade Ambiental
                 </p>
                 <p className="text-xs opacity-75 mt-2">
-                  {gerencias.length} Gerências | {servidores.length} Servidores
+                  {gerenciasVisiveis.length} Gerências | {servidores.length} Servidores
                 </p>
               </div>
             </div>
@@ -90,10 +93,10 @@ const Organograma = () => {
 
         {/* Gerências */}
         <div className="space-y-6">
-          {gerencias.map((gerencia, index) => {
+          {gerenciasVisiveis.map((gerencia, index) => {
             const servidoresGerencia = servidores.filter(s => s.gerenciaId === gerencia.id)
             const isExpanded = expandedGerencias.includes(gerencia.id)
-            const isLast = index === gerencias.length - 1
+            const isLast = index === gerenciasVisiveis.length - 1
 
             return (
               <div key={gerencia.id} className="relative">
@@ -208,7 +211,7 @@ const Organograma = () => {
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Legenda</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {gerencias.map((gerencia) => (
+          {gerenciasVisiveis.map((gerencia) => (
             <div key={gerencia.id} className="flex items-center gap-3">
               <div 
                 className="w-4 h-4 rounded"

@@ -9,7 +9,10 @@ export const gerenciasService = {
       .order('sigla')
     
     if (error) throw error
-    return data || []
+    return (data || []).map(item => ({
+      ...item,
+      listarNoOrganograma: item.listar_no_organograma !== false
+    }))
   },
 
   async getById(id: string): Promise<Gerencia | null> {
@@ -20,7 +23,11 @@ export const gerenciasService = {
       .single()
     
     if (error) throw error
-    return data
+    if (!data) return null
+    return {
+      ...data,
+      listarNoOrganograma: data.listar_no_organograma !== false
+    }
   },
 
   async create(gerencia: Omit<Gerencia, 'id'>): Promise<Gerencia> {
@@ -32,30 +39,43 @@ export const gerenciasService = {
         id,
         nome: gerencia.nome,
         sigla: gerencia.sigla,
-        cor: gerencia.cor
+        cor: gerencia.cor,
+        listar_no_organograma: gerencia.listarNoOrganograma !== false // Padrão true
       })
       .select()
       .single()
     
     if (error) throw error
-    return data
+    return {
+      ...data,
+      listarNoOrganograma: data.listar_no_organograma !== false
+    }
   },
 
   async update(id: string, gerencia: Partial<Omit<Gerencia, 'id'>>): Promise<Gerencia> {
+    const updateData: any = {
+      nome: gerencia.nome,
+      sigla: gerencia.sigla,
+      cor: gerencia.cor,
+      updated_at: new Date().toISOString()
+    }
+    
+    if (gerencia.listarNoOrganograma !== undefined) {
+      updateData.listar_no_organograma = gerencia.listarNoOrganograma
+    }
+    
     const { data, error } = await supabase
       .from('gerencias')
-      .update({
-        nome: gerencia.nome,
-        sigla: gerencia.sigla,
-        cor: gerencia.cor,
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()
     
     if (error) throw error
-    return data
+    return {
+      ...data,
+      listarNoOrganograma: data.listar_no_organograma !== false
+    }
   },
 
   async delete(id: string): Promise<void> {
