@@ -1,0 +1,25 @@
+# Coolify Configuration File
+# Este arquivo pode ser usado para configurar o deploy no Coolify
+# (se sua versão do Coolify suportar arquivos de configuração)
+
+version: '1.0'
+
+application:
+  name: dcpa-gestao
+  type: dockerfile
+  
+build:
+  dockerfile: Dockerfile
+  context: .
+  
+environment:
+  - VITE_SUPABASE_URL=https://abwwaojdxdlcgbskinzo.supabase.co
+  - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid3dhb2pkeGRsY2dic2tpbnpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNDMyMzUsImV4cCI6MjA3NTYxOTIzNX0.-d1H9shNP3Wa0vHga1C1lt6QjGWjQLsGbjdYuu3AcgE
+
+ports:
+  - "80:80"
+
+deploy:
+  auto_deploy: true
+  branch: main
+

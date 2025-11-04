@@ -25,6 +25,46 @@ export const useGerencias = () => {
     }
   }
 
-  return { gerencias, loading, error, reload: loadGerencias }
+  const createGerencia = async (gerencia: Omit<Gerencia, 'id'>): Promise<Gerencia> => {
+    try {
+      const novaGerencia = await gerenciasService.create(gerencia)
+      await loadGerencias()
+      return novaGerencia
+    } catch (err) {
+      console.error('Erro ao criar gerência:', err)
+      throw err
+    }
+  }
+
+  const updateGerencia = async (id: string, gerencia: Partial<Omit<Gerencia, 'id'>>): Promise<Gerencia> => {
+    try {
+      const gerenciaAtualizada = await gerenciasService.update(id, gerencia)
+      await loadGerencias()
+      return gerenciaAtualizada
+    } catch (err) {
+      console.error('Erro ao atualizar gerência:', err)
+      throw err
+    }
+  }
+
+  const deleteGerencia = async (id: string): Promise<void> => {
+    try {
+      await gerenciasService.delete(id)
+      await loadGerencias()
+    } catch (err) {
+      console.error('Erro ao deletar gerência:', err)
+      throw err
+    }
+  }
+
+  return { 
+    gerencias, 
+    loading, 
+    error, 
+    reload: loadGerencias,
+    createGerencia,
+    updateGerencia,
+    deleteGerencia
+  }
 }
 

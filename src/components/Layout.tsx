@@ -12,7 +12,8 @@ import {
   BookOpen,
   BarChart3,
   LogOut,
-  Key
+  Key,
+  Building2
 } from 'lucide-react'
 import { useGerencias } from '../hooks/useGerencias'
 import { useToast } from '../hooks/useToast'
@@ -133,6 +134,17 @@ const Layout = ({ children }: LayoutProps) => {
                   ))}
                 </div>
               )}
+              <Link
+                to="/gerencias"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                  location.pathname === '/gerencias'
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Building2 size={14} />
+                <span>Gerenciar Gerências</span>
+              </Link>
             </div>
           ) : (
             <Link
@@ -143,6 +155,19 @@ const Layout = ({ children }: LayoutProps) => {
               <GitBranch size={16} />
             </Link>
           )}
+
+          <Link
+            to="/gerencias"
+            className={`flex items-center ${isSidebarHovered ? 'gap-2' : 'justify-center'} px-3 py-2 rounded-lg mb-1 transition-colors ${
+              isActive('/gerencias') 
+                ? 'bg-primary-500 text-white' 
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+            title={!isSidebarHovered ? 'Gerenciar Gerências' : ''}
+          >
+            <Building2 size={16} />
+            {isSidebarHovered && <span className="font-medium text-sm">Gerenciar Gerências</span>}
+          </Link>
 
           <Link
             to="/organograma"
@@ -248,6 +273,7 @@ const Layout = ({ children }: LayoutProps) => {
                 {location.pathname === '/servidores' && 'Gestão de Servidores'}
                 {location.pathname === '/cursos' && 'Gestão de Cursos'}
                 {location.pathname === '/desempenho' && 'Sistema de Desempenho'}
+                {location.pathname === '/gerencias' && 'Gestão de Gerências'}
                 {location.pathname.startsWith('/gerencia/') && 
                   gerencias.find(g => location.pathname.includes(g.id))?.sigla
                 }

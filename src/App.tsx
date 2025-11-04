@@ -14,6 +14,7 @@ import Servidores from './pages/Servidores'
 import Cursos from './pages/Cursos'
 import Desempenho from './pages/Desempenho'
 import AlterarSenha from './pages/AlterarSenha'
+import Gerencias from './pages/Gerencias'
 
 function App() {
   const { user, loading } = useAuth()
@@ -67,6 +68,7 @@ function App() {
                   <Route path="/servidores" element={<Servidores />} />
                   <Route path="/cursos" element={<Cursos />} />
                   <Route path="/desempenho" element={<Desempenho />} />
+                  <Route path="/gerencias" element={<Gerencias />} />
                   <Route path="/alterar-senha" element={<AlterarSenha />} />
                 </Routes>
               </Layout>

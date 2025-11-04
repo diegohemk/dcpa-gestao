@@ -123,8 +123,8 @@ export const projetosService = {
         marcos: projeto.marcos || [],
         recursos: projeto.recursos || [],
         observacoes: projeto.observacoes,
-        data_inicio: projeto.dataInicio,
-        data_conclusao: projeto.dataConclusao,
+        data_inicio: projeto.dataInicio && projeto.dataInicio.trim() !== '' ? projeto.dataInicio : null,
+        data_conclusao: projeto.dataConclusao && projeto.dataConclusao.trim() !== '' ? projeto.dataConclusao : null,
         status_detalhado: projeto.statusDetalhado || 'planejamento',
         documentos: projeto.documentos || [],
         wbs: projeto.wbs || [],
@@ -216,6 +216,13 @@ export const projetosService = {
     // Sempre atualiza o indicador calculado automaticamente
     updateData.indicador = indicadorCalculado
     if (projeto.favorito !== undefined) updateData.favorito = projeto.favorito
+    // Trata datas vazias como null
+    if (projeto.dataInicio !== undefined) {
+      updateData.data_inicio = projeto.dataInicio && projeto.dataInicio.trim() !== '' ? projeto.dataInicio : null
+    }
+    if (projeto.dataConclusao !== undefined) {
+      updateData.data_conclusao = projeto.dataConclusao && projeto.dataConclusao.trim() !== '' ? projeto.dataConclusao : null
+    }
     
     // Novos campos
     if (projeto.subetapas !== undefined) updateData.subetapas = projeto.subetapas
@@ -228,8 +235,7 @@ export const projetosService = {
     if (projeto.marcos !== undefined) updateData.marcos = projeto.marcos
     if (projeto.recursos !== undefined) updateData.recursos = projeto.recursos
     if (projeto.observacoes !== undefined) updateData.observacoes = projeto.observacoes
-    if (projeto.dataInicio) updateData.data_inicio = projeto.dataInicio
-    if (projeto.dataConclusao) updateData.data_conclusao = projeto.dataConclusao
+    // dataInicio e dataConclusao já foram tratados acima
     if (projeto.statusDetalhado) updateData.status_detalhado = projeto.statusDetalhado
     if (projeto.documentos !== undefined) updateData.documentos = projeto.documentos
     if (projeto.wbs !== undefined) updateData.wbs = projeto.wbs
